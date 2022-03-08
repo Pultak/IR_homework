@@ -60,12 +60,7 @@ fun parseTableInfo(tableHtml: String, parentSite: JSONObject){
 
 fun collectedWebLinks(urlsSet: MutableCollection<String>, downloader: AbstractHTMLDownloader){
     //Try to load links
-    //val links: File = File(cz.zcu.kiv.nlp.vs.CrawlerVSCOM.STORAGE + "_urls.txt")
-    //todo remove
-    /*val links: File = File(CrawlerVSCOM.STORAGE + "2022-02-24_20_29_690_links_size_3925.txt")
-    if (links.exists()) {
-        parseFile(links, urlsSet)
-    }*/
+
     val max = CrawlerVSCOM.LINK_COLLECTION_COUNT
     var lastCount = urlsSet.size
     var errorCount = 0

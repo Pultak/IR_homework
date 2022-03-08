@@ -42,11 +42,11 @@ public class CrawlerVSCOM {
      * Be polite and don't send requests too often.
      * Waiting period between requests. (in milisec)
      */
-    public static final long POLITENESS_INTERVAL = 1500;
+    public static final long POLITENESS_INTERVAL = 1000;
     public static final Logger log = Logger.getLogger(CrawlerVSCOM.class);
 
     public static final int MAX_FAILED_COUNT = 50;
-    public static final int LINK_COLLECTION_COUNT = 25;
+    public static final int LINK_COLLECTION_COUNT = 60;
     /**
      * Save file with failed links for later examination.
      *
