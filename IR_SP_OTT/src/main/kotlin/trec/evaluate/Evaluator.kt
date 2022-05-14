@@ -6,15 +6,10 @@ import kotlin.math.sqrt
 
 object Evaluator{
 
-    fun findUniques(dict1: HashMap<String, Int>, dict2: HashMap<String, Int>): List<String>{
-        val uniques = arrayListOf<String>()
-        uniques.addAll(dict1.keys)
-        uniques.addAll(dict2.keys)
-        return uniques.distinct()
-    }
+    private lateinit var index: HashMap<String, ArrayList<Int>>
 
 
-    fun evaluateQueries(index: HashMap<String, ArrayList<Int>>, docDict: HashMap<String, Int>,
+    fun evaluateQueries(docDict: HashMap<String, Int>,
                         queryDict: HashMap<String, Int>, docCount: Int): Double{
         val uniques = findUniques(docDict, queryDict)
 
@@ -92,5 +87,13 @@ object Evaluator{
         return index
     }
 
+
+
+    private fun findUniques(dict1: HashMap<String, Int>, dict2: HashMap<String, Int>): List<String>{
+        val uniques = arrayListOf<String>()
+        uniques.addAll(dict1.keys)
+        uniques.addAll(dict2.keys)
+        return uniques.distinct()
+    }
 
 }

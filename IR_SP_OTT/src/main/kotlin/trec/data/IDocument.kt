@@ -17,24 +17,31 @@ interface IDocument {
      * Text dokumentu
      * @return text
      */
-    val text: String?
+    val text: String
 
     /**
      * Unikátní id dokumentu
      * @return id dokumentu
      */
-    val id: String?
+    val id: Long
+
+    var url: String?
+
+    var price: String?
+    var seenCount: String?
+    var location: String?
+    var name: String?
 
     /**
      * Titulek dokumentu
      * @return titulek dokumentu
      */
-    val title: String?
+    val title: String
 
     /**
      * Datum přidání dokumentu (tj. např. indexace nebo stažení nebo publikování
      *
      * @return datum vztažené k dokumentu
      */
-    val date: Date?
+    val date: Date
 }

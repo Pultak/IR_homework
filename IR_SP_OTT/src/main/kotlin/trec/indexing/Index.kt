@@ -1,6 +1,5 @@
-package cz.zcu.kiv.nlp.ir.trec
+package trec.indexing
 
-import trec.IIndexer
 import trec.ISearcher
 import trec.data.IDocument
 import trec.data.IResult

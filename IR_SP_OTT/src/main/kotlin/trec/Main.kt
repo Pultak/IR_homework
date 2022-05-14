@@ -1,12 +1,6 @@
 package trec
 
-import cz.zcu.kiv.nlp.ir.trec.Index
-
-import trec.data.IDocument
-import trec.data.IResult
-import trec.utils.Logger
-import java.io.*
-import java.util.*
+import trec.indexing.Index
 
 const val OUTPUT_DIR = "./TREC"
 

@@ -1,9 +1,19 @@
-package cz.zcu.kiv.nlp.ir.trec.data
+package trec.data
 
-import trec.data.IDocument
 import java.util.*
 
-class Document(override val text: String?, override val id: String?, override val title: String?, override val date: Date?) : IDocument, java.io.Serializable {
+class Document(override val text: String,
+               override val title: String,
+               override val date: Date,
+               override var url: String?,
+               override var price: String?,
+               override var seenCount: String?,
+               override var location: String?,
+               override var name: String?
+) : IDocument, java.io.Serializable {
+
+    override val id: Long = objectCount++
+
     override fun toString(): String {
         return "DocumentNew{" +
                 ", id='" + id + '\'' +
@@ -15,5 +25,6 @@ class Document(override val text: String?, override val id: String?, override va
 
     companion object {
         const val serialVersionUID = -5097715898427114007L
+        var objectCount : Long = 0
     }
 }

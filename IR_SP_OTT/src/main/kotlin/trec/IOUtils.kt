@@ -1,5 +1,9 @@
 package trec
 
+import com.beust.klaxon.JsonReader
+import com.beust.klaxon.Klaxon
+import trec.data.Document
+import trec.utils.Logger
 import java.io.*
 import java.util.*
 
@@ -9,6 +13,9 @@ import java.util.*
  * trec.IOUtils, existující metody neměňte.
  */
 object IOUtils {
+
+    private val jsonParser = Klaxon()
+
     /**
      * Read lines from the stream; lines are trimmed and empty lines are ignored.
      *
@@ -91,5 +98,50 @@ object IOUtils {
         } finally {
             printStream?.close()
         }
+    }
+
+
+    fun readFolder(folder: File): ArrayList<Document>{
+        val result = arrayListOf<Document>()
+        folder.walk().forEach {
+            file ->
+            if(file.isFile){
+                //todo choose approach
+                //result.addAll(readDocuments(file))
+                ///*
+                val doc = readDocument(file)
+                if(doc != null){
+                    result.add(doc)
+                }
+                //*/
+            }else{
+                result.addAll(readFolder(file))
+            }
+        }
+        return result;
+    }
+
+    private fun readDocument(file: File): Document? {
+        return jsonParser.parse<Document>(file);
+    }
+
+    private fun readDocuments(file: File): ArrayList<Document>{
+        val resultArray = arrayListOf<Document>()
+
+        JsonReader(StringReader(readFile(file.inputStream()))).use {
+            reader -> reader.beginArray {
+                var i = 0
+                while(reader.hasNext()){
+                    ++i
+                    val product = jsonParser.parse<Document>(reader)
+                    if (product == null) {
+                        Logger.error("$i. document from file '${file.name} could not be parsed!'")
+                        continue
+                    }
+                    resultArray.add(product)
+                }
+            }
+        }
+        return resultArray
     }
 }
