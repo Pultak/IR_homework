@@ -11,7 +11,7 @@ import java.io.File
  * Pokud potřebujete/chcete můžete přidat další metody např. pro indexaci po jednotlivých dokumentech
  * a jiné potřebné metody (např. CRUD operace update, delete, ... dokumentů), ale zachovejte původní metodu.
  *
- * metodu index implementujte ve třídě [Index]
+ * metodu index implementujte ve třídě [Indexer]
  */
 interface IIndexer {
     /**
@@ -19,7 +19,7 @@ interface IIndexer {
      *
      * @param documents list dokumentů
      */
-    fun index(documents: List<IDocument?>?)
+    fun index(documents: List<IDocument>)
 
 
 

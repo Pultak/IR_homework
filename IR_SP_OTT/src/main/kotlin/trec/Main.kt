@@ -1,6 +1,6 @@
 package trec
 
-import trec.indexing.Index
+import trec.indexing.Indexer
 
 const val OUTPUT_DIR = "./TREC"
 
@@ -16,7 +16,7 @@ const val OUTPUT_DIR = "./TREC"
  * spolu s přiloženým skriptem spustit (přeložit) na
  * Linuxu např. pomocí vašeho účtu na serveru ares.fav.zcu.cz
  *
- * Metodu není třeba měnit kromě řádků označených T O D O  - tj. vytvoření objektu třídy [Index] a
+ * Metodu není třeba měnit kromě řádků označených T O D O  - tj. vytvoření objektu třídy [Indexer] a
  */
 fun main() {
 

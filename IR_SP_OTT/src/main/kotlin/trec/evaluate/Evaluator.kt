@@ -70,9 +70,6 @@ object Evaluator{
         docs.forEachIndexed { i, doc ->
             val tokens = doc.split(" ")
             for(token in tokens){
-                if(token == "je"){
-                    print("")
-                }
                 if(index.containsKey(token)){
                     if(index[token]!!.contains(i)){
                         continue
