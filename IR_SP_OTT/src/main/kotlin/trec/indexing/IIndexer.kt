@@ -14,6 +14,9 @@ import java.io.File
  * metodu index implementujte ve třídě [Indexer]
  */
 interface IIndexer {
+
+    var indexInfo: IndexInfo
+
     /**
      * Metoda zaindexuje zadaný seznam dokumentů
      *

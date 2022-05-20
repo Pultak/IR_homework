@@ -10,7 +10,7 @@ import trec.data.IResult
  * Pokud potřebujete, můžete přidat další metody k implementaci, ale neměňte signaturu
  * již existující metody search.
  *
- * Metodu search implementujte ve tříde [Index]
+ * Metodu search implementujte ve tříde
  */
 interface ISearcher {
     fun search(query: String?): List<IResult?>?

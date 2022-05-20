@@ -1,14 +1,10 @@
-import trec.data.AResult
+package trec.data
 
 /**
  * Created by Tigi on 8.1.2015.
  *
  * Třída představuje výsledek vrácený po vyhledávání.
  * Třídu můžete libovolně upravovat, popř. si můžete vytvořit vlastní třídu,
- * která dědí od abstraktní třídy [AbstractResult]
+ * která dědí od abstraktní třídy
  */
-class Result(override val documentID: String?, override val score: Float, override val rank: Int) : AResult(){
-
-
-
-}
+class Result(override var documentID: String, override var score: Float = -1.0f, override var rank: Int = -1) : AResult()

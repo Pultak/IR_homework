@@ -1,11 +1,15 @@
 package trec
 
-import com.beust.klaxon.JsonReader
-import com.beust.klaxon.Klaxon
+import com.beust.klaxon.*
 import trec.data.Document
+import trec.data.IDocument
 import trec.utils.Logger
 import java.io.*
+import java.nio.charset.Charset
 import java.util.*
+import kotlin.collections.ArrayList
+import kotlin.math.ceil
+
 
 /**
  * @author tigi
@@ -29,7 +33,7 @@ object IOUtils {
             val br = BufferedReader(InputStreamReader(inputStream, "UTF-8"))
             var line: String
             while (br.readLine().also { line = it } != null) {
-                if (!line.trim { it <= ' ' }.isEmpty()) {
+                if (line.trim { it <= ' ' }.isNotEmpty()) {
                     result.add(line.trim { it <= ' ' })
                 }
             }
@@ -46,7 +50,7 @@ object IOUtils {
      * @param inputStream stream
      * @return text
      */
-    fun readFile(inputStream: InputStream?): String {
+    private fun readFile(inputStream: InputStream?): String {
         val sb = StringBuilder()
         requireNotNull(inputStream) { "Cannot locate stream" }
         return try {
@@ -100,48 +104,45 @@ object IOUtils {
         }
     }
 
+    fun readFolder(folder: File): ArrayList<IDocument>{
+        val result = arrayListOf<IDocument>()
+        if(!folder.exists()){
+            Logger.error("readFolder -> Passed folder does not exist!")
+            return result
+        }
+        Logger.debug("readFolder -> loading documents from ${folder.path}")
+        val allFiles = folder.walk()
+        val part: Int = ceil(allFiles.count().toDouble() / 10.0).toInt()
+        var percentage = 0
+        allFiles.forEachIndexed {
+            i, file ->
+            if(i % part == 0){
+                Logger.info("readFolder -> $percentage% loaded!")
+                percentage += 10
+            }
 
-    fun readFolder(folder: File): ArrayList<Document>{
-        val result = arrayListOf<Document>()
-        folder.walk().forEach {
-            file ->
             if(file.isFile){
-                //todo choose approach
-                //result.addAll(readDocuments(file))
-                ///*
                 val doc = readDocument(file)
+
                 if(doc != null){
+                    doc.id = file.name
                     result.add(doc)
                 }
-                //*/
-            }else{
-                result.addAll(readFolder(file))
             }
         }
-        return result;
+        Logger.debug("readFolder -> loading done! ${result.size} docs loaded!")
+        return result
     }
 
-    private fun readDocument(file: File): Document? {
-        return jsonParser.parse<Document>(file);
+    private fun readDocument(file: File): IDocument? {
+        return jsonParser.parse<Document>(file)
     }
 
-    private fun readDocuments(file: File): ArrayList<Document>{
-        val resultArray = arrayListOf<Document>()
+    /*fun readDocument(file: File): Document{
+        //todo encoding
+        val doc = jsonParser.parse<Document>(file.inputStream().bufferedReader(Charset.defaultCharset()))
 
-        JsonReader(StringReader(readFile(file.inputStream()))).use {
-            reader -> reader.beginArray {
-                var i = 0
-                while(reader.hasNext()){
-                    ++i
-                    val product = jsonParser.parse<Document>(reader)
-                    if (product == null) {
-                        Logger.error("$i. document from file '${file.name} could not be parsed!'")
-                        continue
-                    }
-                    resultArray.add(product)
-                }
-            }
-        }
-        return resultArray
-    }
+        return doc //as ArrayList<Document>
+    }*/
+
 }

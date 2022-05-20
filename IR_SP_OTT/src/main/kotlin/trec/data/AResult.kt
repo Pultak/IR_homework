@@ -6,7 +6,7 @@ package trec.data
  * Třída [AResult] implementuje rozhraní [IResult]
  *
  * Představuje výsledek pro ohodnocené vyhledávání. Tzn. po zadání dotazu vyhledávač vrátí
- * "List<Result>", kde každý objekt [IResult] reprezentuje jeden dokument a jeho relevanci k zadanému dotazu.
+ * "List<trec.data.Result>", kde každý objekt [IResult] reprezentuje jeden dokument a jeho relevanci k zadanému dotazu.
  * => tj. id dokumentu, skóre podobnosti mezi tímto dokumentem a dotazem (např. kosinova podobnost), a rank tj.
  * pořadí mezi ostatními vrácenými dokumenty (dokument s rankem 1 bude dokument, který je nejrelevantnější k dodtazu)
  *
@@ -16,11 +16,11 @@ package trec.data
  * Metodu toString(String topic) neměnte, ani nepřepisujte v odděděných třídách slouží pro generování výstupu
  * v daném formátu pro vyhodnocovací skript.
  *
-</Result> */
+</trec.data.Result> */
 abstract class AResult : IResult {
 
     override fun toString(): String {
-        return "Result{" +
+        return "trec.data.Result{" +
                 "documentID='" + documentID + '\'' +
                 ", rank=" + rank +
                 ", score=" + score +

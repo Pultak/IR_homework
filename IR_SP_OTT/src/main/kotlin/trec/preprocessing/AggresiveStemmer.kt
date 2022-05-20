@@ -3,13 +3,18 @@ package trec.preprocessing
 /***
  * Aggressive stemmer
  */
-object Stemmer : IStemmer {
+object AggresiveStemmer : IStemmer {
     /**
      * A buffer of the current word being stemmed
      */
     private val sb = StringBuffer()
 
-
+    override fun stem(text: ArrayList<String>): ArrayList<String> { //
+        for(i in 0 until text.size){
+            text[i] = stem(text[i])
+        }
+        return text
+    }
     override fun stem(text: String): String { //
         var input = text
         input = input.toLowerCase()
@@ -17,7 +22,7 @@ object Stemmer : IStemmer {
         sb.delete(0, sb.length)
         sb.insert(0, input)
         // stemming...
-//removes case endings from nouns and adjectives
+        //removes case endings from nouns and adjectives
         removeCase(sb)
         //removes possesive endings from names -ov- and -in-
         removePossessives(sb)
