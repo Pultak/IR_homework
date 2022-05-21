@@ -18,12 +18,24 @@ import kotlin.math.min
 
 class Application {
 
+/***
+* Count of pages that will be shown during the result presenting
+*/
     private val pageShowCount: Int = 10
 
+/**
+*	Flag that indicates if this application is running
+*/
     private var running = false
 
+/**
+*	Instance of currently loaded indexer
+*/
     private var indexer : IIndexer? = null
 
+/**
+* Method inits and executes the CLI + prints the introduction 
+*/
     fun run(){
         printIntroduction()
 
@@ -49,6 +61,9 @@ class Application {
     }
 
 
+/**
+*	Method used to show user possible functions of this application -> mainly used as signpost
+*/
     private fun signpostLoop(){
         running = true
         loop@ while(running){
@@ -58,9 +73,11 @@ class Application {
 
             if(input == null){
                 running = false
+                //posible EOT or ETX
                 println("Null line inserted! Terminating")
                 break
             }else if(input.isEmpty()){
+            //empty line inserted
                 continue@loop
             }
 
@@ -82,6 +99,11 @@ class Application {
     }
 
 
+/**
+*	Method used to process all the query related tasks. 
+*	It is possible to used vector or boolean based queries.
+* 	To use this method, you need to have index loaded.
+*/
     private fun queryLoop(){
         if(indexer == null){
             println("Please index some data before using queries!")
@@ -102,6 +124,7 @@ class Application {
             }else if(input.isEmpty()){
                 continue@loop
             }
+            //get the command part and leave the rest
             val tokens = input.split(Pattern.compile(" "), 2)
             if(tokens.isNotEmpty() && (tokens[0] == "exit" || tokens[0] == "e")){
                 println("Exiting query menu")
@@ -120,6 +143,7 @@ class Application {
                     continue@loop
                 }
             }
+            //was some query parsed successfully?
             if(actualQuery != null){
                 val hits = actualQuery.evaluate(this.indexer!!)
                 printResults(hits, actualQuery)
@@ -127,6 +151,10 @@ class Application {
         }
     }
 
+/**
+*	Method used to print all the hits that were received from the inserted query.
+*	Results are showed in pages, where if you need a more detailed view you can insert 's' command
+*/
     private fun printResults(hits: ArrayList<IResult>, query: IQuery){
         println("Found ${hits.size} hits.")
 
@@ -153,21 +181,26 @@ class Application {
                 if(response.isNullOrBlank()){
                     return
                 }
+                //get first command and leave rest without spliting
                 val tokens = response.split(Pattern.compile(" "), 2)
                 when(tokens[0]){
+                //need to show more information about the document?
                     "s" -> {
                         showDocument(tokens, hits, query)
                         i -= pageShowCount
                         if(i < 0) i = 0
                     }
+                    //wanna see next page?
                     "f" -> {
                         ++i
                         continue@loop
                     }
+                    //wanna see previous page?
                     "b" -> {
                         i -= (pageShowCount * 2) - 1
                         if(i < 0) i = 0
                     }
+                    //user wants to return from page results
                     else -> {
                         return
                     }
@@ -180,11 +213,20 @@ class Application {
     }
 
 
+/**
+*	Method used to show the contents of document. First parses and validates the passed rank number.
+*	Then gets the document from file and highlights the searched keywords.
+*
+*	@param tokens	list of ranks to show
+*	@param hits		all hits that were received from actual query
+*	@param query	actual query which resulted in these hits
+*/
     private fun showDocument(tokens: List<String>, hits: ArrayList<IResult>, query: IQuery){
         if(tokens.size < 2){
             println("To show more, enter 's <rank>' in correct format please!")
         }else{
 
+			//todo show multiple ranks?
             val rank = try {
                 tokens[1].toInt() - 1
             }catch (e: NumberFormatException){
@@ -198,11 +240,14 @@ class Application {
             val filePath = hits[rank].documentID
             println("Showing ${rank + 1}. ranked document which is located on $filePath")
 
+			//loads the contents of doc file
             var stringDoc: String = IOUtils.readLines(File(filePath)) ?: return
 
+			//tokenizes the doc and stems it -> for searched words highlighting 
             val docTokens = Tokenizer.tokenize(stringDoc, false)
             val termsMap = LightStemmer.stemWithMap(docTokens)
 
+			//highligh all searched words
             query.terms.forEachIndexed{ i, term ->
                 termsMap[term]?.forEach {token ->
                     stringDoc = stringDoc.replace(token, "|$i|$token|")
@@ -217,6 +262,10 @@ class Application {
         }
     }
 
+
+/**
+*	Method used to show and process all the possible index related tasks
+*/
     private fun indexLoop(){
 
         println("Welcome to index menu.")
@@ -229,23 +278,27 @@ class Application {
             print(">")
             val input = readLine()
             if(input == null){
+            //EOT or ETX possibly received
                 println("Null line inserted! Terminating!")
                 running = false
                 return
             }else if(input.isEmpty()){
+            //empty line inserted
                 continue@loop
             }
+            //get first command and leave rest without spliting
             val tokens = input.split(Pattern.compile(" "), 2)
             if(tokens.isNotEmpty() && (tokens[0] == "exit" || tokens[0] == "e")){
                 println("Exiting index menu")
                 break@loop
             }
             if(tokens.size < 2){
-                println("No command inserted! Please try again!")
+                println("No command arguments inserted! Please try again!")
                 continue
             }
 
             when(tokens[0]){
+            //indexing of new data 
                 "index", "i" ->{
                     val docs = IOUtils.readFolder(File(tokens[1]))
                     if(docs.size > 0){
@@ -253,6 +306,7 @@ class Application {
                         indexer!!.index(docs)
                     }
                 }
+                //saving of the actual index 
                 "save", "s" -> {
                     if(indexer == null){
                         trec.utils.Logger.error("You need to have index loaded first! Terminating!")
@@ -260,6 +314,7 @@ class Application {
                     }
                     trec.utils.Logger.info("Index saved: ${indexer!!.saveIndexedData(File(tokens[1]))}")
                 }
+                //loading of saved index from the filesystem
                 "load", "l" -> {
                     if(indexer == null){
                         indexer = Indexer()
@@ -280,6 +335,4 @@ class Application {
 
 
     }
-
-
 }

@@ -95,6 +95,12 @@ object IOUtils {
         }
     }
 
+/**
+*	Recursively reads all json documents from the passed folder
+*	@param folder folder files with the json documents
+*	@returns List of all documents that were found in the folder 
+*
+*/
     fun readFolder(folder: File): ArrayList<IDocument>{
         val result = arrayListOf<IDocument>()
         if(!folder.exists()){
@@ -102,6 +108,7 @@ object IOUtils {
             return result
         }
         Logger.debug("readFolder -> loading documents from ${folder.path}")
+        //walk -> get all files recursively {including folders]
         val allFiles = folder.walk()
         val part: Int = ceil(allFiles.count().toDouble() / 10.0).toInt()
         var percentage = 0
@@ -125,6 +132,11 @@ object IOUtils {
         return result
     }
 
+/**
+*	Reads json document from the passed file
+*   @param file passed json file
+*	@returns parsed document on success. Null on failure
+*/
     private fun readDocument(file: File): IDocument? {
         return jsonParser.parse<Document>(file)
     }
