@@ -11,18 +11,29 @@ class BooleanQuery(override val terms :ArrayList<String>) : IQuery {
     private val allPostings = arrayListOf<Pair<String, ArrayList<DocumentInformation>>>()
 
 
+/**
+*	
+*	@param indexer currently used indexer
+* 	@param returns all documents that were relevant for inserted query
+*
+*/
     override fun evaluate(indexer: IIndexer): ArrayList<IResult> {
         createPostingsList(indexer)
 
         val iter = allPostings.listIterator()
 
+		//first of two elements that will be joined  
+		//todo change to first 
         var last : ArrayList<DocumentInformation>? = null
+        //second of two elements that will be joined
+        //todo change to second
         var previous : ArrayList<DocumentInformation>? = null
         while(iter.hasNext()){
             val value = iter.next()
 
             var merged : ArrayList<DocumentInformation>? = null
             when(value.first){
+            	//is actual term one of the operations?
                 "and" -> {
                     merged = booleanANDPostings(previous!!, last!!)
                 }
@@ -41,6 +52,7 @@ class BooleanQuery(override val terms :ArrayList<String>) : IQuery {
                 iter.previous()
                 iter.remove()
                 //todo test
+                //and create one joined from the remove postings
                 iter.add(Pair("", merged))
             }
             if(previous != null){
@@ -51,6 +63,7 @@ class BooleanQuery(override val terms :ArrayList<String>) : IQuery {
         }
 
         val result = arrayListOf<IResult>()
+        //asign ranks
         allPostings[0].second.forEachIndexed{ i, it ->
             //todo score?
             result.add(Result(it.documentId, /*-1.0f*/0.0f, i + 1))
@@ -58,6 +71,10 @@ class BooleanQuery(override val terms :ArrayList<String>) : IQuery {
         return result
     }
 
+
+/**
+*
+**/
     private fun createPostingsList(indexer: IIndexer){
         terms.forEach { term ->
             when(term){
@@ -77,6 +94,13 @@ class BooleanQuery(override val terms :ArrayList<String>) : IQuery {
     }
 
 
+/**
+*	Joins the postings of the passed lists by AND operation which results intersection od the two passed postings
+* 	@param firstList list of all document information of the first term
+*	@param secondList list of all documents of the second term
+*	@returns Joined postings with AND operation
+*
+*/
     private fun booleanANDPostings(firstList: List<DocumentInformation>, secondList: List<DocumentInformation>): ArrayList<DocumentInformation>{
         val res = arrayListOf<DocumentInformation>()
         var lastCheckIndex = 0
@@ -93,6 +117,13 @@ class BooleanQuery(override val terms :ArrayList<String>) : IQuery {
         return res
     }
 
+/**
+*	Joins the postings of the passed lists by OR operation which results unifications od the two passed postings
+* 	@param firstList list of all document information of the first term
+*	@param secondList list of all documents of the second term
+*	@returns Joined postings with OR operation
+*
+*/
     private fun booleanORPostings(firstList: List<DocumentInformation>, secondList: List<DocumentInformation>): ArrayList<DocumentInformation>{
         val res = arrayListOf<DocumentInformation>()
         var lastCheckIndex = 0
@@ -114,6 +145,13 @@ class BooleanQuery(override val terms :ArrayList<String>) : IQuery {
     }
 
 
+/**
+*	Joins the postings of the passed lists by NOT operation which results in first postings but without the data from the second postings. 
+* 	@param firstList list of all document information of the first term
+*	@param secondList list of all documents of the second term
+*	@returns Joined postings with NOT operation
+*
+*/
     private fun booleanNOTPostings(firstList: ArrayList<DocumentInformation>, secondList: ArrayList<DocumentInformation>): ArrayList<DocumentInformation>{
         //todo does it work?
         val res = firstList.filter {

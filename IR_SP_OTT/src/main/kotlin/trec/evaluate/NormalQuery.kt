@@ -64,8 +64,9 @@ class NormalQuery(override val terms: ArrayList<String>) : IQuery {
 
 
 /**
-*	Method... todo
-*	@param indexer actualy used indexer
+*	Method calculates the metrics for the passed document. 
+*	TDIDF metric is used. 
+*	@param indexer actually used indexer
 *	@param docId id of the currectly evaluated document
 *	@param wordDict map od all unique terms located in the doc and query
 * 	@returns tfidf metric
