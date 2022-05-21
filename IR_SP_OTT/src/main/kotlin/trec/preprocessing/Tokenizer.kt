@@ -29,7 +29,7 @@ object Tokenizer : ITokenizer {
 
     }
 
-    private fun tokenize(text: String, regex: String): ArrayList<String>{
+    private fun tokenize(text: String, regex: String, removeStopWords: Boolean): ArrayList<String>{
         val pattern: Pattern = Pattern.compile(regex)
 
         val words = ArrayList<String>()
@@ -40,9 +40,14 @@ object Tokenizer : ITokenizer {
             val end: Int = matcher.end()
             words.add(text.substring(start, end))
         }
+        if(removeStopWords){
+            removeStopWords(words)
+        }
+        return words
+    }
 
+    private fun removeStopWords(words: ArrayList<String>){
         //remove stopWords
-        /*todo
         val it = words.iterator()
         while(it.hasNext()){
             val token = it.next()
@@ -51,9 +56,7 @@ object Tokenizer : ITokenizer {
             }else if(token.length < 3){
                 it.remove()
             }
-        }*/
-
-        return words
+        }
     }
 
     override fun removeAccents(text: String) : String{
@@ -61,7 +64,7 @@ object Tokenizer : ITokenizer {
     }
 
 
-    override fun tokenize(text: String): ArrayList<String> {
-        return tokenize(text, defaultRegex)
+    override fun tokenize(text: String, removeStopWords: Boolean): ArrayList<String> {
+        return tokenize(text, defaultRegex, removeStopWords)
     }
 }

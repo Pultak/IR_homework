@@ -8,7 +8,7 @@ import trec.indexing.Indexer
 import kotlin.math.log10
 import kotlin.math.sqrt
 
-class NormalQuery(terms: ArrayList<String>) : IQuery {
+class NormalQuery(override val terms: ArrayList<String>) : IQuery {
 
     private val queryDict = hashMapOf<String, Int>()
 
@@ -81,7 +81,7 @@ class NormalQuery(terms: ArrayList<String>) : IQuery {
 
         }
 
-        val normDoc = indexer.indexInfo.normsDocs[docId]!!
+        val normDoc = sqrt(indexer.indexInfo.normsDocs[docId]!!)
         normQuery = sqrt(normQuery)
 
         val norm = normDoc * normQuery

@@ -6,7 +6,7 @@ import trec.indexing.DocumentInformation
 import trec.indexing.IIndexer
 import trec.preprocessing.LightStemmer
 
-class BooleanQuery(private val terms :List<String>) : IQuery {
+class BooleanQuery(override val terms :ArrayList<String>) : IQuery {
 
     private val allPostings = arrayListOf<Pair<String, ArrayList<DocumentInformation>>>()
 
@@ -80,10 +80,11 @@ class BooleanQuery(private val terms :List<String>) : IQuery {
     private fun booleanANDPostings(firstList: List<DocumentInformation>, secondList: List<DocumentInformation>): ArrayList<DocumentInformation>{
         val res = arrayListOf<DocumentInformation>()
         var lastCheckIndex = 0
-        for (i in 0..firstList.size){
-            for (j in lastCheckIndex..secondList.size){
+        //for (i in 0 until firstList.size){
+        for (element in firstList){
+            for (j in lastCheckIndex until secondList.size){
                 val value = secondList[j]
-                if(firstList[i].documentId == value.documentId){
+                if(element.documentId == value.documentId){
                     lastCheckIndex = j
                     res.add(value)
                 }

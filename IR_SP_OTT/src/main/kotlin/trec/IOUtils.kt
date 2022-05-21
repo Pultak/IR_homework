@@ -26,22 +26,13 @@ object IOUtils {
      * @param inputStream stream
      * @return list of lines
      */
-    fun readLines(inputStream: InputStream?): List<String> {
-        requireNotNull(inputStream) { "Cannot locate stream" }
-        return try {
-            val result: MutableList<String> = ArrayList()
-            val br = BufferedReader(InputStreamReader(inputStream, "UTF-8"))
-            var line: String
-            while (br.readLine().also { line = it } != null) {
-                if (line.trim { it <= ' ' }.isNotEmpty()) {
-                    result.add(line.trim { it <= ' ' })
-                }
-            }
-            inputStream.close()
-            result
-        } catch (e: IOException) {
-            throw IllegalStateException(e)
+    fun readLines(file: File): String? {
+        if(!file.exists()){
+            Logger.error("readLines -> File on ${file.path} does not exist!")
+            return null
         }
+
+        return file.readText(Charset.defaultCharset())
     }
 
     /**
@@ -125,7 +116,7 @@ object IOUtils {
                 val doc = readDocument(file)
 
                 if(doc != null){
-                    doc.id = file.name
+                    doc.id = file.path
                     result.add(doc)
                 }
             }
@@ -137,12 +128,4 @@ object IOUtils {
     private fun readDocument(file: File): IDocument? {
         return jsonParser.parse<Document>(file)
     }
-
-    /*fun readDocument(file: File): Document{
-        //todo encoding
-        val doc = jsonParser.parse<Document>(file.inputStream().bufferedReader(Charset.defaultCharset()))
-
-        return doc //as ArrayList<Document>
-    }*/
-
 }

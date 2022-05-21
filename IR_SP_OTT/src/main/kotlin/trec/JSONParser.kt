@@ -19,7 +19,6 @@ fun main(args: Array<String>){
     println("Your working directory is ${Paths.get("").toAbsolutePath()}.")
     //val docs = IOUtils.readFolder(File("trec-all"))
 
-    //todo date format
     //val documents = arrayListOf<IDocument>(Document("text", "title", ""), Document("text", "title", Date()))
 
 

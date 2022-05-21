@@ -6,6 +6,7 @@ import trec.evaluate.NormalQuery
 import trec.evaluate.QueryType
 import trec.utils.Logger
 import java.util.*
+import kotlin.collections.ArrayList
 
 object QueryParser {
 
@@ -33,9 +34,9 @@ object QueryParser {
         }else{
             Logger.debug("Parsing of vector query started!")
             val tokens = Tokenizer.tokenize(query)
-            /*todo for(i in 0 until tokens.size){
+            for(i in 0 until tokens.size){
                 tokens[i] = LightStemmer.stem(tokens[i])
-            }*/
+            }
             Logger.debug("Query after stemming: $tokens")
             return NormalQuery(tokens)
         }
@@ -44,7 +45,7 @@ object QueryParser {
     }
 
 
-    private fun parseBoolean(query: String): List<String>{
+    private fun parseBoolean(query: String): ArrayList<String>{
         var procQuery = query.replace("(", " ( ")
         procQuery = procQuery.replace("(", " ( ")
 

@@ -15,6 +15,24 @@ object LightStemmer: IStemmer {
     private val sb = StringBuffer()
 
 
+    fun stemWithMap(text: ArrayList<String>): HashMap<String, ArrayList<String>>{
+        val result = hashMapOf<String, ArrayList<String>>()
+        for(i in 0 until text.size){
+            val token = text[i]
+            val stemResult = stem(text[i])
+            if(result.containsKey(stemResult)){
+                val tokenList = result[stemResult]!!
+                if(!tokenList.contains(token)){
+                    tokenList.add(token)
+                }
+            }else{
+                result[stemResult] = arrayListOf(token)
+            }
+        }
+
+        return result
+    }
+
     override fun stem(text: ArrayList<String>): ArrayList<String> { //
         for(i in 0 until text.size){
             text[i] = LightStemmer.stem(text[i])

@@ -40,12 +40,12 @@ class Indexer : IIndexer{
                 Logger.info("index -> $percentage% indexed!")
                 percentage += 10
             }
-            val finalString = /*todo"${doc.location} ${doc.name}*/ "${doc.article} ${doc.title}"
+            val finalString = "${doc.article} ${doc.title}"
 
             //tokenize strings and find uniques
             val tokens = Tokenizer.tokenize(finalString)/*.distinct() as ArrayList*/
-            //todo val stemmedTokens = LightStemmer.stem(tokens)
-            for(term in /*stemmedTokens*/ tokens){
+            val stemmedTokens = LightStemmer.stem(tokens)
+            for(term in stemmedTokens){
                 if(indexInfo.index.containsKey(term)){
                     var found = false
                     indexInfo.index[term]!!.forEach{
@@ -73,13 +73,12 @@ class Indexer : IIndexer{
             invertedDocs.forEach{
                 it.tfIdfMetric = (1 + log10(it.wordCount.toFloat())) * idf
                 if(indexInfo.normsDocs.containsKey(it.documentId)){
-                    indexInfo.normsDocs[it.documentId]!!.plus(it.tfIdfMetric * it.tfIdfMetric)
+                    indexInfo.normsDocs[it.documentId] = indexInfo.normsDocs[it.documentId]!!.plus(it.tfIdfMetric * it.tfIdfMetric)
                 }else{
                     indexInfo.normsDocs[it.documentId] = it.tfIdfMetric * it.tfIdfMetric
                 }
             }
         }
-
 
         Logger.debug("index -> Indexing process done!")
     }
