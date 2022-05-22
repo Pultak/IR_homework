@@ -42,8 +42,6 @@ class NormalQuery(override val terms: ArrayList<String>) : IQuery {
                     }
                     docDicts[docInfo.documentId]!![term] = Pair(count.toFloat(), docInfo)
                 }
-            }else{
-				//todo useless branch?
             }
         }
 

@@ -39,4 +39,7 @@ interface IIndexer {
      * @return True if the index save was successful.
      */
     fun saveIndexedData(file: File): Boolean
+
+
+    fun addDoc(file: File): Boolean
 }

@@ -109,6 +109,8 @@ object IOUtils {
         }
         Logger.debug("readFolder -> loading documents from ${folder.path}")
         //walk -> get all files recursively {including folders]
+
+        val startTime = System.currentTimeMillis()
         val allFiles = folder.walk()
         val part: Int = ceil(allFiles.count().toDouble() / 10.0).toInt()
         var percentage = 0
@@ -121,14 +123,13 @@ object IOUtils {
 
             if(file.isFile){
                 val doc = readDocument(file)
-
                 if(doc != null){
-                    doc.id = file.path
                     result.add(doc)
                 }
             }
         }
-        Logger.debug("readFolder -> loading done! ${result.size} docs loaded!")
+        val endTime = System.currentTimeMillis()
+        Logger.debug("readFolder -> loading done! ${result.size} docs loaded in ${(endTime - startTime)/1000.0} secs!")
         return result
     }
 
@@ -137,7 +138,11 @@ object IOUtils {
 *   @param file passed json file
 *	@returns parsed document on success. Null on failure
 */
-    private fun readDocument(file: File): IDocument? {
-        return jsonParser.parse<Document>(file)
+    fun readDocument(file: File): IDocument? {
+        val doc = jsonParser.parse<Document>(file)
+        if(doc != null){
+            doc.id = file.path
+        }
+        return doc
     }
 }

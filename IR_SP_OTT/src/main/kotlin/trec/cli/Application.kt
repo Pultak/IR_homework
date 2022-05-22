@@ -6,6 +6,7 @@ import trec.evaluate.IQuery
 import trec.evaluate.QueryType
 import trec.indexing.IIndexer
 import trec.indexing.Indexer
+import trec.preprocessing.AggresiveStemmer
 import trec.preprocessing.LightStemmer
 import trec.preprocessing.QueryParser
 import trec.preprocessing.Tokenizer
@@ -38,24 +39,6 @@ class Application {
 */
     fun run(){
         printIntroduction()
-
-/*
-        //todo remove later
-        val docs = IOUtils.readFolder(File("mydatasmall"))
-        indexer = Indexer()
-        indexer!!.index(docs)
-        //todo
-*/
-        //todo remove
-        indexer = Indexer()
-        indexer!!.loadIndexedData(File("aloha"))
-
-        //val query = QueryParser.parse(QueryType.NORMAL, "Prodám elektrický impulzní ohradník")
-        val query = QueryParser.parse(QueryType.BOOLEAN, "Prodám AND ohradník")
-
-        printResults(query!!.evaluate(indexer!!), query)
-
-
         signpostLoop()
         println("See you again soon!")
     }
@@ -136,8 +119,8 @@ class Application {
             }
 
             val actualQuery = when(tokens[0]){
-                "boolean", "b" -> QueryParser.parse(QueryType.BOOLEAN, tokens[1])
-                "query", "q" -> QueryParser.parse(QueryType.NORMAL, tokens[1])
+                "boolean", "b" -> QueryParser.parse(tokens[1])
+                "query", "q" -> QueryParser.parse(tokens[1])
                 else -> {
                     println("Unknown command! Please try again!")
                     continue@loop
@@ -226,7 +209,6 @@ class Application {
             println("To show more, enter 's <rank>' in correct format please!")
         }else{
 
-			//todo show multiple ranks?
             val rank = try {
                 tokens[1].toInt() - 1
             }catch (e: NumberFormatException){
@@ -245,7 +227,7 @@ class Application {
 
 			//tokenizes the doc and stems it -> for searched words highlighting 
             val docTokens = Tokenizer.tokenize(stringDoc, false)
-            val termsMap = LightStemmer.stemWithMap(docTokens)
+            val termsMap = AggresiveStemmer.stemWithMap(docTokens)
 
 			//highligh all searched words
             query.terms.forEachIndexed{ i, term ->
@@ -273,6 +255,7 @@ class Application {
         println("Start new indexing process -> 'index <folder-name>'")
         println("Save actual index to file -> 'save <file-name>'")
         println("Load old index -> 'load <file-name>'")
+        println("Add document to current index -> 'add <file-name>'")
 
         loop@ while(true){
             print(">")
@@ -305,6 +288,10 @@ class Application {
                         indexer = Indexer()
                         indexer!!.index(docs)
                     }
+                }
+                "add", "a" -> {
+                    val file = File(tokens[1])
+                    trec.utils.Logger.info("New doc (${file.name}) to index added: ${indexer?.addDoc(file)}")
                 }
                 //saving of the actual index 
                 "save", "s" -> {

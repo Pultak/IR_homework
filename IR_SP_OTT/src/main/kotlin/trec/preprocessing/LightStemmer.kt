@@ -56,7 +56,16 @@ object LightStemmer: IStemmer {
 
         //removes possesive endings from names -ov- and -in-
         removePossessives(sb)
-        return sb.toString()
+
+        var sbResult = sb.toString()
+        sbResult = sbResult.replace('í', 'i')
+        sbResult = sbResult.replace('á', 'a')
+        sbResult = sbResult.replace('é', 'e')
+        sbResult = sbResult.replace('ý', 'y')
+        sbResult = sbResult.replace('ě', 'e')
+        sbResult = sbResult.replace('ú', 'u')
+        sbResult = sbResult.replace('ů', 'u')
+        return sbResult
     }
 
     private fun palatalise(buffer: StringBuffer) {

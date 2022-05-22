@@ -11,43 +11,70 @@ import kotlin.collections.ArrayList
 object QueryParser {
 
 
-    fun parse(queryType: QueryType, query: String) : IQuery?{
+    fun parse(query: String) : IQuery?{
         val parseQuery = query.toLowerCase()
+        Logger.debug("parse -> New query received")
+        val queryType = getQueryType(query)
+
         if(queryType == QueryType.BOOLEAN){
-            Logger.debug("Parsing of boolean query started!")
-            val parsedBool = parseBoolean(parseQuery)
-            //now to validate the result
+            Logger.debug("parse -> Parsing of boolean query started!")
+
+            var leftCount = 0
+            var rightCount = 0
+            for(char in parseQuery){
+                if(char == '(') ++leftCount
+                else if(char == ')') ++rightCount
+            }
+            if(leftCount != rightCount){
+                Logger.error("parse -> Brackets dont match!")
+                return null
+            }
+
+            val parsedBool = parseBool(parseQuery)
+            //now to validate the result and stem tokens
 
             var containsKeywords = false
-            parsedBool.forEach {
+            for(i in 0 until parsedBool.size){
+                val it = parsedBool[i]
                 if(it.contains(")") || it.contains("(")){
-                    Logger.error("Parsing of boolean query failed! Invalid format!")
+                    Logger.error("parse -> Parsing of boolean query failed! Invalid format!")
                     return null
                 }else if(it == "and" || it == "or" || it == "not") {
                     containsKeywords = true
+                }else{
+                    parsedBool[i] = AggresiveStemmer.stem(it)
                 }
             }
-            Logger.debug("Boolean query after stemming: $parsedBool")
+            Logger.debug("parse -> Boolean query after stemming: $parsedBool")
             if(containsKeywords){
                 return BooleanQuery(parsedBool)
             }
-        }else{
-            Logger.debug("Parsing of vector query started!")
+            Logger.error("parse -> Non valid boolean query!")
+        }
+        else{
+            //parsing vector query
+            Logger.debug("parse -> Parsing of vector query started!")
             val tokens = Tokenizer.tokenize(query)
             for(i in 0 until tokens.size){
-                tokens[i] = LightStemmer.stem(tokens[i])
+                tokens[i] = AggresiveStemmer.stem(tokens[i])
             }
-            Logger.debug("Query after stemming: $tokens")
+            Logger.debug("parse -> Query after stemming: $tokens")
             return NormalQuery(tokens)
         }
-        Logger.error("Parsing of query failed! Invalid format!")
+        Logger.error("parse -> Parsing of query failed! Invalid format!")
         return null
     }
 
+    private fun getQueryType(query: String): QueryType{
+        val query2 = query.toLowerCase()
+        return if(query2.contains(" and ") || query2.contains(" or ") || query2.contains(" not ")){
+                QueryType.BOOLEAN
+            }else QueryType.NORMAL
+    }
 
-    private fun parseBoolean(query: String): ArrayList<String>{
+    private fun parseBool(query: String): ArrayList<String>{
         var procQuery = query.replace("(", " ( ")
-        procQuery = procQuery.replace("(", " ( ")
+        procQuery = procQuery.replace(")", " ) ")
 
         val tokens = procQuery.split(" ").filter {it != ""}
 
@@ -56,9 +83,9 @@ object QueryParser {
         tokens.forEach {
             token ->
             when(token){
-                "or", "and", "not" -> {
+                "and", "or", "not" -> {
                     if(stack.isNotEmpty() && stack.peek() != "("){
-                        result.add(token)
+                        result.add(stack.pop())
                     }
                     stack.push(token)
                 }

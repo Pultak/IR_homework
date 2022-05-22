@@ -4,6 +4,7 @@ import trec.data.IResult
 import trec.data.Result
 import trec.indexing.DocumentInformation
 import trec.indexing.IIndexer
+import trec.preprocessing.AggresiveStemmer
 import trec.preprocessing.LightStemmer
 
 class BooleanQuery(override val terms :ArrayList<String>) : IQuery {
@@ -22,12 +23,6 @@ class BooleanQuery(override val terms :ArrayList<String>) : IQuery {
 
         val iter = allPostings.listIterator()
 
-		//first of two elements that will be joined  
-		//todo change to first 
-        var last : ArrayList<DocumentInformation>? = null
-        //second of two elements that will be joined
-        //todo change to second
-        var previous : ArrayList<DocumentInformation>? = null
         while(iter.hasNext()){
             val value = iter.next()
 
@@ -35,42 +30,46 @@ class BooleanQuery(override val terms :ArrayList<String>) : IQuery {
             when(value.first){
             	//is actual term one of the operations?
                 "and" -> {
-                    merged = booleanANDPostings(previous!!, last!!)
+                    merged = booleanANDPostings(getTwoPreviousLists(iter))
                 }
                 "or" -> {
-                    merged = booleanORPostings(previous!!, last!!)
+                    merged = booleanORPostings(getTwoPreviousLists(iter))
                 }
                 "not" -> {
-                    merged = booleanNOTPostings(previous!!, last!!)
+                    merged = booleanNOTPostings(getTwoPreviousLists(iter))
                 }
             }
             if(merged != null){
                 //remove last 3 objects
                 iter.remove()
-                iter.previous()
+                iter.next()
                 iter.remove()
-                iter.previous()
+                iter.next()
                 iter.remove()
-                //todo test
                 //and create one joined from the remove postings
                 iter.add(Pair("", merged))
             }
-            if(previous != null){
-                last = previous
-            }
-            previous = value.second
 
         }
 
         val result = arrayListOf<IResult>()
         //asign ranks
         allPostings[0].second.forEachIndexed{ i, it ->
-            //todo score?
             result.add(Result(it.documentId, /*-1.0f*/0.0f, i + 1))
         }
         return result
     }
 
+
+    private fun getTwoPreviousLists(it: MutableListIterator<Pair<String, ArrayList<DocumentInformation>>>):
+            Pair<List<DocumentInformation>, List<DocumentInformation>>{
+        //first discard the operation operator
+        it.previous()
+        //then get last two postings
+        val list2 = it.previous()
+        val list1 = it.previous()
+        return Pair(list1.second, list2.second)
+    }
 
 /**
 *
@@ -82,11 +81,10 @@ class BooleanQuery(override val terms :ArrayList<String>) : IQuery {
                     allPostings.add(Pair(term, arrayListOf()))
                 }
                 else -> {
-                    val stem = LightStemmer.stem(term)
-                    val res = indexer.indexInfo.index[stem]
-                    if(res != null){
-                        allPostings.add(Pair(stem, res))
-                    }
+                    val stem = AggresiveStemmer.stem(term)
+                    //empty array if not inside index
+                    val res = indexer.indexInfo.index[stem] ?: arrayListOf()
+                    allPostings.add(Pair(stem, res))
                 }
             }
 
@@ -101,16 +99,16 @@ class BooleanQuery(override val terms :ArrayList<String>) : IQuery {
 *	@returns Joined postings with AND operation
 *
 */
-    private fun booleanANDPostings(firstList: List<DocumentInformation>, secondList: List<DocumentInformation>): ArrayList<DocumentInformation>{
+    private fun booleanANDPostings(postings: Pair<List<DocumentInformation>, List<DocumentInformation>>): ArrayList<DocumentInformation>{
         val res = arrayListOf<DocumentInformation>()
         var lastCheckIndex = 0
         //for (i in 0 until firstList.size){
-        for (element in firstList){
-            for (j in lastCheckIndex until secondList.size){
-                val value = secondList[j]
+        for (element in postings.first){
+            for (j in lastCheckIndex until postings.second.size){
+                val value = postings.second[j]
                 if(element.documentId == value.documentId){
-                    lastCheckIndex = j
                     res.add(value)
+                    lastCheckIndex = j + 1
                 }
             }
         }
@@ -124,19 +122,22 @@ class BooleanQuery(override val terms :ArrayList<String>) : IQuery {
 *	@returns Joined postings with OR operation
 *
 */
-    private fun booleanORPostings(firstList: List<DocumentInformation>, secondList: List<DocumentInformation>): ArrayList<DocumentInformation>{
+    private fun booleanORPostings(postings: Pair<List<DocumentInformation>, List<DocumentInformation>>): ArrayList<DocumentInformation>{
         val res = arrayListOf<DocumentInformation>()
         var lastCheckIndex = 0
 
-        for (i in 0..firstList.size){
-            val firstVal = firstList[i]
-            for(j in lastCheckIndex..secondList.size){
-                val secondVal = secondList[i]
-                if(firstList[i].documentId == secondVal.documentId){
+        for (i in postings.first.indices){
+            val firstVal = postings.first[i]
+            if(lastCheckIndex < postings.second.size){
+                for(j in lastCheckIndex until postings.second.size){
                     lastCheckIndex = j
-                    break
-                }else{
-                    res.add(secondVal)
+                    val secondVal = postings.second[j]
+                    if(firstVal.documentId == secondVal.documentId){
+                        ++lastCheckIndex
+                        break
+                    }else{
+                        res.add(secondVal)
+                    }
                 }
             }
             res.add(firstVal)
@@ -152,14 +153,21 @@ class BooleanQuery(override val terms :ArrayList<String>) : IQuery {
 *	@returns Joined postings with NOT operation
 *
 */
-    private fun booleanNOTPostings(firstList: ArrayList<DocumentInformation>, secondList: ArrayList<DocumentInformation>): ArrayList<DocumentInformation>{
-        //todo does it work?
-        val res = firstList.filter {
-            secondList.any {
-                    sec -> sec.documentId == it.documentId
+    private fun booleanNOTPostings(postings: Pair<List<DocumentInformation>, List<DocumentInformation>>):
+        ArrayList<DocumentInformation>{
+        val result = ArrayList(postings.first)
+        val it = result.iterator()
+        var lastIndex = 0
+        while(it.hasNext()){
+            val actual = it.next()
+            for(i in lastIndex until postings.second.size){
+                if(actual.documentId == postings.second[i].documentId){
+                    lastIndex = i + 1
+                    it.remove()
+                    break
+                }
             }
-        } as ArrayList<DocumentInformation>
-
-        return res
+        }
+        return result
     }
 }

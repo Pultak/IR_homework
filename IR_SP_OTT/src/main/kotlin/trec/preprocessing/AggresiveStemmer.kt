@@ -9,6 +9,24 @@ object AggresiveStemmer : IStemmer {
      */
     private val sb = StringBuffer()
 
+    fun stemWithMap(text: ArrayList<String>): HashMap<String, ArrayList<String>>{
+        val result = hashMapOf<String, ArrayList<String>>()
+        for(i in 0 until text.size){
+            val token = text[i]
+            val stemResult = AggresiveStemmer.stem(text[i])
+            if(result.containsKey(stemResult)){
+                val tokenList = result[stemResult]!!
+                if(!tokenList.contains(token)){
+                    tokenList.add(token)
+                }
+            }else{
+                result[stemResult] = arrayListOf(token)
+            }
+        }
+
+        return result
+    }
+
     override fun stem(text: ArrayList<String>): ArrayList<String> { //
         for(i in 0 until text.size){
             text[i] = stem(text[i])
@@ -34,7 +52,20 @@ object AggresiveStemmer : IStemmer {
         removeAugmentative(sb)
         //removes derivational sufixes from nouns
         removeDerivational(sb)
-        return sb.toString()
+
+        var sbResult = sb.toString()
+        sbResult = sbResult.replace('í', 'i')
+        sbResult = sbResult.replace('á', 'a')
+        sbResult = sbResult.replace('é', 'e')
+        sbResult = sbResult.replace('ý', 'y')
+        sbResult = sbResult.replace('ě', 'e')
+        sbResult = sbResult.replace('ú', 'u')
+        sbResult = sbResult.replace('ů', 'u')
+        sbResult = sbResult.replace('š', 's')
+        sbResult = sbResult.replace('č', 'c')
+        sbResult = sbResult.replace('ř', 'r')
+        sbResult = sbResult.replace('ž', 'z')
+        return sbResult
     }
 
     private fun removeDerivational(buffer: StringBuffer) {

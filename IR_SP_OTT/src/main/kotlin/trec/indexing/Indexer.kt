@@ -1,7 +1,8 @@
 package trec.indexing
 
-import trec.ISearcher
+import trec.IOUtils
 import trec.data.IDocument
+import trec.preprocessing.AggresiveStemmer
 import trec.preprocessing.LightStemmer
 import trec.preprocessing.Tokenizer
 import trec.utils.Logger
@@ -18,7 +19,7 @@ import kotlin.math.sqrt
  *
  * Tuto třídu doplňte tak aby implementovala rozhranní [IIndexer] a [ISearcher].
  * Pokud potřebujete, přidejte další rozhraní, která tato třída implementujte nebo
- * přidejte metody do rozhraní [IIndexer] a [ISearcher].
+ * přidejte metody do rozhraní [IIndexer].
  */
 class Indexer : IIndexer{
 
@@ -28,6 +29,7 @@ class Indexer : IIndexer{
     override fun index(documents: List<IDocument>) {
 
         Logger.debug("index -> Indexing process started!")
+        val startTime = System.currentTimeMillis()
         val docCount = documents.size.toFloat()
         indexInfo.docsSize = documents.size
 
@@ -40,47 +42,14 @@ class Indexer : IIndexer{
                 Logger.info("index -> $percentage% indexed!")
                 percentage += 10
             }
-            val finalString = "${doc.article} ${doc.title}"
-
-            //tokenize strings and find uniques
-            val tokens = Tokenizer.tokenize(finalString)/*.distinct() as ArrayList*/
-            val stemmedTokens = LightStemmer.stem(tokens)
-            for(term in stemmedTokens){
-                if(indexInfo.index.containsKey(term)){
-                    var found = false
-                    indexInfo.index[term]!!.forEach{
-                        if(it.documentId == doc.id){
-                            it.wordCount += 1
-                            found = true
-                            return@forEach
-                        }
-                    }
-                    if(!found){
-                        indexInfo.index[term]?.add(DocumentInformation(doc.id, 1))
-                    }
-                }else{
-                    indexInfo.index[term] = arrayListOf(DocumentInformation(doc.id, 1))
-                }
-            }
+            indexData(doc)
         }
 
         Logger.debug("index -> Index metrics calculation!")
-        indexInfo.index.forEach {
-                (term, invertedDocs) ->
+        indexMetricsCalc(docCount.toDouble())
 
-            val idf = log10(docCount / invertedDocs.size)
-
-            invertedDocs.forEach{
-                it.tfIdfMetric = (1 + log10(it.wordCount.toFloat())) * idf
-                if(indexInfo.normsDocs.containsKey(it.documentId)){
-                    indexInfo.normsDocs[it.documentId] = indexInfo.normsDocs[it.documentId]!!.plus(it.tfIdfMetric * it.tfIdfMetric)
-                }else{
-                    indexInfo.normsDocs[it.documentId] = it.tfIdfMetric * it.tfIdfMetric
-                }
-            }
-        }
-
-        Logger.debug("index -> Indexing process done!")
+        val endTime = System.currentTimeMillis()
+        Logger.debug("index -> Indexing process done in ${(endTime - startTime)/1000.0} secs!")
     }
 
 
@@ -114,4 +83,70 @@ class Indexer : IIndexer{
 
         return true
     }
+
+    override fun addDoc(file: File): Boolean{
+
+        if(!file.exists()){
+            Logger.error("addDoc -> Adding of ${file.path} doc failed! File non existent!")
+            return false
+        }
+
+        val doc = IOUtils.readDocument(file)
+
+        if(doc != null){
+
+            Logger.debug("addDoc -> Indexing of ${file.path} doc started!")
+            ++(indexInfo.docsSize)
+            indexInfo.normsDocs
+            indexData(doc)
+
+            Logger.debug("addDoc -> Index metrics calculation!")
+            indexMetricsCalc(indexInfo.docsSize.toDouble())
+        }
+        return true
+    }
+
+
+    private fun indexData(doc: IDocument){
+        val finalString = "${doc.article} ${doc.title}"
+        //tokenize strings and find uniques
+        val tokens = Tokenizer.tokenize(finalString)/*.distinct() as ArrayList*/
+        val stemmedTokens = AggresiveStemmer.stem(tokens)
+        for(term in stemmedTokens){
+            if(indexInfo.index.containsKey(term)){
+                var found = false
+                indexInfo.index[term]!!.forEach{
+                    if(it.documentId == doc.id){
+                        it.wordCount += 1
+                        found = true
+                        return@forEach
+                    }
+                }
+                if(!found){
+                    indexInfo.index[term]?.add(DocumentInformation(doc.id, 1))
+                }
+            }else{
+                indexInfo.index[term] = arrayListOf(DocumentInformation(doc.id, 1))
+            }
+        }
+    }
+
+
+    private fun indexMetricsCalc(docsCount: Double){
+        indexInfo.index.forEach {
+                (term, invertedDocs) ->
+
+            val idf = log10(docsCount / invertedDocs.size.toDouble())
+
+            invertedDocs.forEach{
+                it.tfIdfMetric = ((1 + log10(it.wordCount.toFloat())) * idf).toFloat()
+                if(indexInfo.normsDocs.containsKey(it.documentId)){
+                    indexInfo.normsDocs[it.documentId] = indexInfo.normsDocs[it.documentId]!!.plus(it.tfIdfMetric * it.tfIdfMetric)
+                }else{
+                    indexInfo.normsDocs[it.documentId] = it.tfIdfMetric * it.tfIdfMetric
+                }
+            }
+        }
+    }
+
 }
