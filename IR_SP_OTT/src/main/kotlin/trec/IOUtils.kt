@@ -6,7 +6,6 @@ import trec.data.IDocument
 import trec.utils.Logger
 import java.io.*
 import java.nio.charset.Charset
-import java.util.*
 import kotlin.collections.ArrayList
 import kotlin.math.ceil
 

@@ -1,10 +1,5 @@
 package trec.data
 
-import java.text.SimpleDateFormat
-import java.util.*
-import java.util.Locale
-
-
 class Document(
     override val article: String,
     override val datetime: String,
@@ -28,10 +23,5 @@ class Document(
                 ", date=" + datetime +
                 "text='" + article + '\'' +
                 '}'
-    }
-
-    companion object {
-        const val serialVersionUID = -5097715898427114007L
-        var objectCount : Int = 0
     }
 }

@@ -3,21 +3,19 @@ package trec.indexing
 import trec.IOUtils
 import trec.data.IDocument
 import trec.preprocessing.AggresiveStemmer
-import trec.preprocessing.LightStemmer
 import trec.preprocessing.Tokenizer
 import trec.utils.Logger
 import java.io.*
 import java.lang.Exception
 import kotlin.math.ceil
 import kotlin.math.log10
-import kotlin.math.sqrt
 
 /**
  * @author tigi
  *
  * Třída reprezentující index.
  *
- * Tuto třídu doplňte tak aby implementovala rozhranní [IIndexer] a [ISearcher].
+ * Tuto třídu doplňte tak aby implementovala rozhranní [IIndexer].
  * Pokud potřebujete, přidejte další rozhraní, která tato třída implementujte nebo
  * přidejte metody do rozhraní [IIndexer].
  */
@@ -134,7 +132,7 @@ class Indexer : IIndexer{
 
     private fun indexMetricsCalc(docsCount: Double){
         indexInfo.index.forEach {
-                (term, invertedDocs) ->
+                (_, invertedDocs) ->
 
             val idf = log10(docsCount / invertedDocs.size.toDouble())
 

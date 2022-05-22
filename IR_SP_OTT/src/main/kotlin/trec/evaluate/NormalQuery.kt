@@ -4,7 +4,6 @@ import trec.data.IResult
 import trec.data.Result
 import trec.indexing.DocumentInformation
 import trec.indexing.IIndexer
-import trec.indexing.Indexer
 import kotlin.math.log10
 import kotlin.math.sqrt
 

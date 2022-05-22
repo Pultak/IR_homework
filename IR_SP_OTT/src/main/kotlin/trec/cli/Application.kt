@@ -3,19 +3,15 @@ package trec.cli
 import trec.IOUtils
 import trec.data.IResult
 import trec.evaluate.IQuery
-import trec.evaluate.QueryType
 import trec.indexing.IIndexer
 import trec.indexing.Indexer
 import trec.preprocessing.AggresiveStemmer
-import trec.preprocessing.LightStemmer
 import trec.preprocessing.QueryParser
 import trec.preprocessing.Tokenizer
 import java.io.File
 import java.nio.file.Paths
-import java.util.*
 import java.util.regex.Pattern
 import kotlin.collections.ArrayList
-import kotlin.math.min
 
 class Application {
 

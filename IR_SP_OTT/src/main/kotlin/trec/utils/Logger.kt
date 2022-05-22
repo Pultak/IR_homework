@@ -2,7 +2,6 @@ package trec.utils
 
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
-import javax.naming.Context
 
 object Logger {
 

@@ -5,7 +5,6 @@ import trec.data.Result
 import trec.indexing.DocumentInformation
 import trec.indexing.IIndexer
 import trec.preprocessing.AggresiveStemmer
-import trec.preprocessing.LightStemmer
 
 class BooleanQuery(override val terms :ArrayList<String>) : IQuery {
 
@@ -15,7 +14,7 @@ class BooleanQuery(override val terms :ArrayList<String>) : IQuery {
 /**
 *	
 *	@param indexer currently used indexer
-* 	@param returns all documents that were relevant for inserted query
+* 	@returns all documents that were relevant for inserted query
 *
 */
     override fun evaluate(indexer: IIndexer): ArrayList<IResult> {
@@ -94,8 +93,7 @@ class BooleanQuery(override val terms :ArrayList<String>) : IQuery {
 
 /**
 *	Joins the postings of the passed lists by AND operation which results intersection od the two passed postings
-* 	@param firstList list of all document information of the first term
-*	@param secondList list of all documents of the second term
+* 	@param postings list of all document information of the first term + t list of all documents of the second term
 *	@returns Joined postings with AND operation
 *
 */
@@ -117,8 +115,7 @@ class BooleanQuery(override val terms :ArrayList<String>) : IQuery {
 
 /**
 *	Joins the postings of the passed lists by OR operation which results unifications od the two passed postings
-* 	@param firstList list of all document information of the first term
-*	@param secondList list of all documents of the second term
+* 	@param postings list of all document information of the first term + secondList list of all documents of the second term
 *	@returns Joined postings with OR operation
 *
 */
@@ -148,8 +145,7 @@ class BooleanQuery(override val terms :ArrayList<String>) : IQuery {
 
 /**
 *	Joins the postings of the passed lists by NOT operation which results in first postings but without the data from the second postings. 
-* 	@param firstList list of all document information of the first term
-*	@param secondList list of all documents of the second term
+* 	@param postings list of all document information of the first term + secondList list of all documents of the second term
 *	@returns Joined postings with NOT operation
 *
 */

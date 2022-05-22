@@ -1,6 +1,5 @@
 package trec.preprocessing
 
-import trec.IOUtils
 import trec.utils.Logger
 import java.io.File
 import java.text.Normalizer

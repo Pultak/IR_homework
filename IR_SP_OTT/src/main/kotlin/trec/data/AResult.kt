@@ -10,7 +10,7 @@ package trec.data
  * => tj. id dokumentu, skóre podobnosti mezi tímto dokumentem a dotazem (např. kosinova podobnost), a rank tj.
  * pořadí mezi ostatními vrácenými dokumenty (dokument s rankem 1 bude dokument, který je nejrelevantnější k dodtazu)
  *
- * Od této třídy byste měli dědit pokud vám nestačí implementace třídy [ResultImpl], např. pokud potřebujete
+ * Od této třídy byste měli dědit pokud vám nestačí implementace třídy např. pokud potřebujete
  * přidat nějaké další proměnné.
  *
  * Metodu toString(String topic) neměnte, ani nepřepisujte v odděděných třídách slouží pro generování výstupu

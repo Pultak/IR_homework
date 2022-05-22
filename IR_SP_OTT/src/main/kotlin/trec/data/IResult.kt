@@ -8,7 +8,7 @@ package trec.data
  * => tj. id dokumentu, skóre podobnosti mezi tímto dokumentem a dotazem (např. kosinova podobnost) a rank tj.
  * pořadí mezi ostatními vrácenými dokumenty (dokument s rankem 1 bude dokument, který je nejrelevantnější k dodtazu)
  *
- * Toto rozhranní neimplementujte, ale použijte třídu [ResultImpl], kterou můžete libovolně upravovat, případně
+ * Toto rozhranní neimplementujte, ale použijte třídu, kterou můžete libovolně upravovat, případně
  * si vytvořte vlastní třídu, která dědí od abstraktní třídy [AResult].
 </trec.data.Result> */
 interface IResult {
