@@ -5,6 +5,7 @@ import trec.data.Result
 import trec.indexing.DocumentInformation
 import trec.indexing.IIndexer
 import trec.preprocessing.AggresiveStemmer
+import trec.utils.Logger
 
 class BooleanQuery(override val terms :ArrayList<String>) : IQuery {
 
@@ -18,43 +19,48 @@ class BooleanQuery(override val terms :ArrayList<String>) : IQuery {
 *
 */
     override fun evaluate(indexer: IIndexer): ArrayList<IResult> {
-        createPostingsList(indexer)
-
-        val iter = allPostings.listIterator()
-
-        while(iter.hasNext()){
-            val value = iter.next()
-
-            var merged : ArrayList<DocumentInformation>? = null
-            when(value.first){
-            	//is actual term one of the operations?
-                "and" -> {
-                    merged = booleanANDPostings(getTwoPreviousLists(iter))
-                }
-                "or" -> {
-                    merged = booleanORPostings(getTwoPreviousLists(iter))
-                }
-                "not" -> {
-                    merged = booleanNOTPostings(getTwoPreviousLists(iter))
-                }
-            }
-            if(merged != null){
-                //remove last 3 objects
-                iter.remove()
-                iter.next()
-                iter.remove()
-                iter.next()
-                iter.remove()
-                //and create one joined from the remove postings
-                iter.add(Pair("", merged))
-            }
-
-        }
-
         val result = arrayListOf<IResult>()
-        //asign ranks
-        allPostings[0].second.forEachIndexed{ i, it ->
-            result.add(Result(it.documentId, /*-1.0f*/0.0f, i + 1))
+
+        try{
+            createPostingsList(indexer)
+
+            val iter = allPostings.listIterator()
+
+            while(iter.hasNext()){
+                val value = iter.next()
+
+                var merged : ArrayList<DocumentInformation>? = null
+                when(value.first){
+                    //is actual term one of the operations?
+                    "and" -> {
+                        merged = booleanANDPostings(getTwoPreviousLists(iter))
+                    }
+                    "or" -> {
+                        merged = booleanORPostings(getTwoPreviousLists(iter))
+                    }
+                    "not" -> {
+                        merged = booleanNOTPostings(getTwoPreviousLists(iter))
+                    }
+                }
+                if(merged != null){
+                    //remove last 3 objects
+                    iter.remove()
+                    iter.next()
+                    iter.remove()
+                    iter.next()
+                    iter.remove()
+                    //and create one joined from the remove postings
+                    iter.add(Pair("", merged))
+                }
+
+            }
+
+            //asign ranks
+            allPostings[0].second.forEachIndexed{ i, it ->
+                result.add(Result(it.documentId, /*-1.0f*/0.0f, i + 1))
+            }
+        }catch(e: Exception){
+            Logger.error("Boolean query is in invalid format!")
         }
         return result
     }
